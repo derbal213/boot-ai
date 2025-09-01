@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 from google.genai import types
+from functions.path_check import check_path_permitted
 
 schema_run_python = types.FunctionDeclaration(
     name="run_python_file",
@@ -25,10 +26,7 @@ schema_run_python = types.FunctionDeclaration(
 
 def run_python_file(working_directory, file_path, args=[]):
     try:
-        wd_abs = os.path.abspath(working_directory)
-        target_abs = os.path.abspath(os.path.join(wd_abs, file_path))
-        if os.path.commonpath([wd_abs, target_abs]) != wd_abs:
-            raise Exception(f'Error: Cannot execute "{file_path}" as it is outside the permitted working directory')
+        target_abs, wd_abs = check_path_permitted(working_directory, file_path, return_wd=True)
         
         if not os.path.exists(target_abs):
             raise Exception(f'Error: File "{file_path}" not found.')
